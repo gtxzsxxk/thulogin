@@ -18,7 +18,11 @@ add_executable(thulogin src/main.cpp
         include/SrunSHA1.h
         src/AuthWorker.cpp
         include/AuthWorker.h
-        )
+        src/encrypt/SrunXEncode.cpp
+        include/SrunXEncode.h
+        lib/Encoder.h
+        lib/Encoder.cpp
+)
 
 IF (WIN32)
         target_link_libraries(thulogin wsock32 ws2_32)
