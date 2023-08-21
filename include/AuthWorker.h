@@ -23,9 +23,17 @@ class AuthWorker {
 
     void get_info();
 
+    void fetch_from_json(const std::string& data,const std::string& prop,std::string& dest);
+
     void fetch_token(const std::string &data);
 
     void fetch_ip(const std::string &data);
+
+    void fetch_error_state(const std::string &data);
+
+    void fetch_suc_ret(const std::string &data);
+
+    void fetch_err_ret(const std::string &data);
 
     void build_auth_info(std::string &info, std::string &hmd5, std::string &checksum);
 

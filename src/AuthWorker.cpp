@@ -81,36 +81,29 @@ std::time_t AuthWorker::getTimestamp() {
     return timestamp;
 }
 
-void AuthWorker::fetch_token(const std::string &data) {
-    std::string token_match = R"("challenge":)";
-    size_t ip_ptr = data.find(token_match);
-    ip_ptr += token_match.size();
+void AuthWorker::fetch_from_json(const std::string &data, const std::string &prop, std::string &dest) {
+    std::string prop_match = "\"" + prop + "\":";
+    size_t prop_ptr = data.find(prop_match);
+    prop_ptr += prop_match.size();
     int counter = 0;
+    dest = "";
     while (counter < 2) {
-        if (data[ip_ptr++] == '"') {
+        if (data[prop_ptr++] == '"') {
             counter++;
         }
         if (counter > 0 && counter < 2) {
-            token += data[ip_ptr];
+            dest += data[prop_ptr];
         }
     }
-    token.pop_back();
+    dest.pop_back();
+}
+
+void AuthWorker::fetch_token(const std::string &data) {
+    fetch_from_json(data,"challenge",token);
 }
 
 void AuthWorker::fetch_ip(const std::string &data) {
-    std::string ip_match = R"("client_ip":)";
-    size_t ip_ptr = data.find(ip_match);
-    ip_ptr += ip_match.size();
-    int counter = 0;
-    while (counter < 2) {
-        if (data[ip_ptr++] == '"') {
-            counter++;
-        }
-        if (counter > 0 && counter < 2) {
-            ip_addr += data[ip_ptr];
-        }
-    }
-    ip_addr.pop_back();
+    fetch_from_json(data,"client_ip",ip_addr);
 }
 
 void AuthWorker::build_auth_info(std::string &info, std::string &hmd5, std::string &checksum) {
@@ -128,5 +121,29 @@ void AuthWorker::build_auth_info(std::string &info, std::string &hmd5, std::stri
     checksum += (token + "1");
     checksum += (token + info);
     checksum = get_sha1(checksum);
+}
+
+void AuthWorker::fetch_error_state(const std::string &data) {
+    std::string err_match = R"("error":)";
+    size_t ip_ptr = data.find(ip_match);
+    ip_ptr += ip_match.size();
+    int counter = 0;
+    while (counter < 2) {
+        if (data[ip_ptr++] == '"') {
+            counter++;
+        }
+        if (counter > 0 && counter < 2) {
+            ip_addr += data[ip_ptr];
+        }
+    }
+    ip_addr.pop_back();
+}
+
+void AuthWorker::fetch_suc_ret(const std::string &data) {
+
+}
+
+void AuthWorker::fetch_err_ret(const std::string &data) {
+
 }
 
