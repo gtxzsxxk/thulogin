@@ -294,7 +294,7 @@ namespace http
                 }
             };
 
-            inline const ErrorCategory errorCategory;
+            const ErrorCategory errorCategory;
 
             class Api final
             {
@@ -1120,9 +1120,9 @@ namespace http
     public:
         explicit Request(const std::string& uriString,
                          const InternetProtocol protocol = InternetProtocol::v4):
-            internetProtocol{protocol},
-            uri{parseUri(uriString.begin(), uriString.end())}
+            internetProtocol{protocol}
         {
+            uri = parseUri(uriString.begin(), uriString.end());
         }
 
         Response send(const std::string& method = "GET",

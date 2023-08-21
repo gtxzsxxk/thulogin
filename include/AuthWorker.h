@@ -15,7 +15,7 @@ class AuthWorker {
     std::string username;
     std::string password;
 public:
-    AuthWorker(std::string & base_url, int ac_id);
+    AuthWorker(std::string  base_url, int ac_id);
     void set_account(std::string& username,std::string& password);
     int auth();
 };

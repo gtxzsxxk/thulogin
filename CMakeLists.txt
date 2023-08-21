@@ -13,8 +13,13 @@ add_executable(thulogin src/main.cpp
         lib/hash-lib/md5.cpp
         lib/hash-lib/sha1.cpp
         lib/hash-lib/sha1.h
+        lib/HTTPRequest.hpp
         src/encrypt/SrunSHA1.cpp
         include/SrunSHA1.h
         src/AuthWorker.cpp
         include/AuthWorker.h
-        lib/HTTPRequest.hpp)
+        )
+
+IF (WIN32)
+        target_link_libraries(thulogin wsock32 ws2_32)
+ENDIF ()
