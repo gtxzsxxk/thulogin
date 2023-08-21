@@ -15,6 +15,6 @@ add_executable(thulogin src/main.cpp
         lib/hash-lib/sha1.h
         src/encrypt/SrunSHA1.cpp
         include/SrunSHA1.h
-        src/AuthInfo.cpp
-        include/AuthInfo.h
+        src/AuthWorker.cpp
+        include/AuthWorker.h
         lib/HTTPRequest.hpp)
