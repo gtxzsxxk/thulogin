@@ -1,10 +1,9 @@
 #include <iostream>
-#include "../include/SrunBase64.h"
-#include "../include/SrunMd5.h"
-#include "../include/SrunSHA1.h"
 #include "../include/AuthWorker.h"
+#include <ctime>
 
 int main() {
     AuthWorker au("http://auth4.tsinghua.edu.cn",135);
+    au.auth("aux","test");
     return 0;
 }

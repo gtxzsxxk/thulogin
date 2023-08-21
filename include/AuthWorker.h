@@ -5,6 +5,7 @@
 #ifndef THULOGIN_AUTHWORKER_H
 #define THULOGIN_AUTHWORKER_H
 #include <string>
+#include <ctime>
 
 class AuthWorker {
     std::string base_url;
@@ -14,11 +15,14 @@ class AuthWorker {
     int ac_id;
     std::string username;
     std::string password;
-    void get_token();
+    std::string token;
+    void get_info();
+    void digest_token(const std::string & data);
+    void digest_ip(const std::string & data);
+    static std::time_t getTimestamp();
 public:
     AuthWorker(std::string  base_url, int ac_id);
-    void set_account(std::string& username,std::string& password);
-    int auth();
+    int auth(std::string username, std::string password);
 };
 
 
