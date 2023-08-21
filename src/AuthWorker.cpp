@@ -24,6 +24,17 @@ AuthWorker::AuthWorker(std::string base_url, int ac_id) {
         std::string result = std::string{response.body.begin(),response.body.end()};
         std::string match_str = "name=\"user_ip\" ";
         size_t index = result.find(match_str);
+        size_t ip_ptr = index+match_str.size();
+        int counter = 0;
+        while(counter<2){
+            if(result[ip_ptr++]=='"'){
+                counter++;
+            }
+            if(counter>0&&counter<2){
+                ip_addr+=result[ip_ptr];
+            }
+        }
+        ip_addr.pop_back();
     }
     catch(const std::exception& e){
         std::cerr<<"Failed when trying to fetch ip address."<<std::endl;
@@ -37,5 +48,16 @@ void AuthWorker::set_account(std::string& username, std::string& password) {
 
 int AuthWorker::auth() {
     return 0;
+}
+
+void AuthWorker::get_token() {
+    try{
+        http::Request request(base_url+"/srun_portal_pc_ac.php?ac_id=135&");
+        const auto response = request.send("GET","",headers);
+        std::string result = std::string{response.body.begin(),response.body.end()};
+    }
+    catch(const std::exception & e){
+        std::cerr<<"Failed when trying to fetch the auth token."<<std::endl;
+    }
 }
 
