@@ -11,6 +11,7 @@
 #include "../include/SrunSHA1.h"
 #include "../include/SrunXEncode.h"
 
+const static std::string banner = "****** thulogin ******\r\n*** Initializing\r\n";
 
 AuthWorker::AuthWorker(std::string base_url, std::string ac_id,
                        std::string user_agent) :
@@ -23,11 +24,17 @@ AuthWorker::AuthWorker(std::string base_url, std::string ac_id,
     headers = {
             std::make_pair("User-Agent", user_agent)
     };
+    std::cout << banner << std::endl;
+    std::cout << "*** Auth Server: " << base_url << std::endl;
+    std::cout << "*** Auth Ac_id: " << ac_id << std::endl;
+    std::cout << "*** Auth U/A: " << user_agent << std::endl;
 }
 
 int AuthWorker::auth(std::string username, std::string password) {
     this->username = username;
     this->password = password;
+
+    std::cout << std::endl << "*** Start authenticating..." << std::endl;
     get_info();
 
     std::string info, hmd5, chksum;
@@ -46,7 +53,11 @@ int AuthWorker::auth(std::string username, std::string password) {
         http::Request request(url_with_params);
         const auto response = request.send("GET", "", headers);
         std::string result = std::string{response.body.begin(), response.body.end()};
-        std::cout << result << std::endl;
+        if (!fetch_error_state(result)) {
+            std::cout << "*** Logged in successfully!" << std::endl;
+        } else {
+            std::cerr << "*** Failed to log in. The error below occurred:" << std::endl << response_msg;
+        }
     }
     catch (const std::exception &e) {
         std::cerr << "Failed when trying to authenticate." << std::endl;
@@ -99,11 +110,11 @@ void AuthWorker::fetch_from_json(const std::string &data, const std::string &pro
 }
 
 void AuthWorker::fetch_token(const std::string &data) {
-    fetch_from_json(data,"challenge",token);
+    fetch_from_json(data, "challenge", token);
 }
 
 void AuthWorker::fetch_ip(const std::string &data) {
-    fetch_from_json(data,"client_ip",ip_addr);
+    fetch_from_json(data, "client_ip", ip_addr);
 }
 
 void AuthWorker::build_auth_info(std::string &info, std::string &hmd5, std::string &checksum) {
@@ -123,27 +134,18 @@ void AuthWorker::build_auth_info(std::string &info, std::string &hmd5, std::stri
     checksum = get_sha1(checksum);
 }
 
-void AuthWorker::fetch_error_state(const std::string &data) {
-    std::string err_match = R"("error":)";
-    size_t ip_ptr = data.find(ip_match);
-    ip_ptr += ip_match.size();
-    int counter = 0;
-    while (counter < 2) {
-        if (data[ip_ptr++] == '"') {
-            counter++;
+int AuthWorker::fetch_error_state(const std::string &data) {
+    fetch_from_json(data, "error", error_state);
+    if (error_state == "ok") {
+        fetch_from_json(data, "suc_msg", response_msg);
+        if (response_msg == "login_ok") {
+            return 0;
         }
-        if (counter > 0 && counter < 2) {
-            ip_addr += data[ip_ptr];
-        }
+    } else if (error_state == "login_error") {
+        fetch_from_json(data, "error_msg", response_msg);
+    } else {
+        fetch_from_json(data, "res", response_msg);
     }
-    ip_addr.pop_back();
-}
-
-void AuthWorker::fetch_suc_ret(const std::string &data) {
-
-}
-
-void AuthWorker::fetch_err_ret(const std::string &data) {
-
+    return -1;
 }
 

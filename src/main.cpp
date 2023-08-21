@@ -9,14 +9,18 @@
  * Usages
  * ./thulogin
  * ./thulogin username password
- * ./thulogin --specify-baseurl baseurl --specify-ua user-agent --specify-ac-id ac_id
+ * ./thulogin --specify-server url --specify-ua user-agent --specify-ac-id ac_id
  * */
 int main(int argc, char **argv) {
-    AuthWorker * au;
-    if(argc==1){
+    AuthWorker au("http://auth4.tsinghua.edu.cn", "135");
+    std::string user, pwd;
+    if (argc == 1) {
+        std::cout << "Username:";
+        std::cin >> user;
 
+        std::cout << "Password:";
+        std::cin >> pwd;
     }
-    au->auth("aux", "aux");
-    delete au;
+    au.auth(user, pwd);
     return 0;
 }
