@@ -6,5 +6,6 @@
 #define THULOGIN_TYPES_H
 
 typedef unsigned char BYTE;
+typedef unsigned short WCHAR;
 
 #endif //THULOGIN_TYPES_H
