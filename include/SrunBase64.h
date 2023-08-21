@@ -4,6 +4,7 @@
 
 #ifndef THULOGIN_SRUNBASE64_H
 #define THULOGIN_SRUNBASE64_H
+
 #include <string>
 #include <vector>
 #include "Types.h"

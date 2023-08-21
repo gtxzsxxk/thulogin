@@ -16,7 +16,7 @@ std::string get_base64_string(std::string s) {
         return s;
     }
     for (i = 0; i < imax; i += 3) {
-        b10 = (((BYTE)s[i]) << 16) | (((BYTE)s[i+1]) << 8) | ((BYTE)s[i+2]);
+        b10 = (((BYTE) s[i]) << 16) | (((BYTE) s[i + 1]) << 8) | ((BYTE) s[i + 2]);
         x.push_back(alpha[(b10 >> 18)]);
         x.push_back(alpha[((b10 >> 12) & 63)]);
         x.push_back(alpha[((b10 >> 6) & 63)]);
@@ -25,14 +25,14 @@ std::string get_base64_string(std::string s) {
     i = imax;
     switch (s.length() - imax) {
         case 1:
-            b10 = ((BYTE)s[i]) << 16;
+            b10 = ((BYTE) s[i]) << 16;
             x.push_back(alpha[(b10 >> 18)]);
             x.push_back(alpha[((b10 >> 12) & 63)]);
             x.push_back(pad_char);
             x.push_back(pad_char);
             break;
         case 2:
-            b10 = (((BYTE)s[i]) << 16) | (((BYTE)s[i+1]) << 8);
+            b10 = (((BYTE) s[i]) << 16) | (((BYTE) s[i + 1]) << 8);
             x.push_back(alpha[(b10 >> 18)]);
             x.push_back(alpha[((b10 >> 12) & 63)]);
             x.push_back(alpha[((b10 >> 6) & 63)]);

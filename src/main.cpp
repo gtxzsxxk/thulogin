@@ -3,8 +3,8 @@
 #include <ctime>
 #include "../include/SrunBase64.h"
 
-int main() {
-    AuthWorker au("http://auth4.tsinghua.edu.cn","135");
-    au.auth("aux","test");
+int main(int argc, char **argv) {
+    AuthWorker au("http://auth4.tsinghua.edu.cn", "135");
+    au.auth("aux", "aux");
     return 0;
 }
