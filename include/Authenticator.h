@@ -2,14 +2,14 @@
 // Created by hanyuan on 2023/8/21.
 //
 
-#ifndef THULOGIN_AUTHWORKER_H
-#define THULOGIN_AUTHWORKER_H
+#ifndef THULOGIN_AUTHENTICATOR_H
+#define THULOGIN_AUTHENTICATOR_H
 
 #include <string>
 #include <ctime>
 #include "../lib/HTTPRequest.hpp"
 
-class AuthWorker {
+class Authenticator {
     std::string base_url;
     std::string challenge_api_url;
     std::string portal_api_url;
@@ -38,11 +38,11 @@ class AuthWorker {
     static std::time_t getTimestamp();
 
 public:
-    AuthWorker(std::string base_url, std::string ac_id,
-               std::string user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+    Authenticator(std::string base_url, std::string ac_id,
+                  std::string user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
 
     int auth(std::string username, std::string password);
 };
 
 
-#endif //THULOGIN_AUTHWORKER_H
+#endif //THULOGIN_AUTHENTICATOR_H

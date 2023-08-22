@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../include/AuthWorker.h"
+#include "../include/Authenticator.h"
 #include "../include/PwdInput.h"
 
 /*
@@ -13,7 +13,7 @@
  * ./thulogin --specify-server url --specify-ua user-agent --specify-ac-id ac_id
  * */
 int main(int argc, char **argv) {
-    AuthWorker au("http://auth4.tsinghua.edu.cn", "135");
+    Authenticator au("http://auth4.tsinghua.edu.cn", "135");
     std::string user, pwd;
     if (argc == 1) {
         std::cout << "Username:";
