@@ -7,7 +7,8 @@
 
 #include <string>
 
-#ifdef MSC_VER
+#ifdef __WIN32__
+#include <iostream>
 #include <conio.h>
 #else
 
