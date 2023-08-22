@@ -22,6 +22,8 @@ add_executable(thulogin src/main.cpp
         include/SrunXEncode.h
         lib/Encoder.h
         lib/Encoder.cpp
+        src/PwdInput.cpp
+        include/PwdInput.h
 )
 
 IF (WIN32)

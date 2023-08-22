@@ -1,6 +1,6 @@
 #include <iostream>
-#include <cstring>
 #include "../include/AuthWorker.h"
+#include "../include/PwdInput.h"
 
 /*
  * thulogin, a cross-platform CLI portal authenticating tool
@@ -8,7 +8,8 @@
  *
  * Usages
  * ./thulogin
- * ./thulogin username password
+ * ./thulogin username
+ * ./thulogin --username username --pwd pwd
  * ./thulogin --specify-server url --specify-ua user-agent --specify-ac-id ac_id
  * */
 int main(int argc, char **argv) {
@@ -18,8 +19,9 @@ int main(int argc, char **argv) {
         std::cout << "Username:";
         std::cin >> user;
 
-        std::cout << "Password:";
-        std::cin >> pwd;
+        pwd = pwd_input();
+    } else if (argc == 3) {
+
     }
     au.auth(user, pwd);
     return 0;

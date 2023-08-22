@@ -35,6 +35,7 @@ int AuthWorker::auth(std::string username, std::string password) {
     this->password = password;
 
     std::cout << std::endl << "*** Start authenticating..." << std::endl;
+    std::cout << std::endl << "*** Authenticate Username: " << username << std::endl;
     get_info();
 
     std::string info, hmd5, chksum;
@@ -56,7 +57,7 @@ int AuthWorker::auth(std::string username, std::string password) {
         if (!fetch_error_state(result)) {
             std::cout << "*** Logged in successfully!" << std::endl;
         } else {
-            std::cerr << "*** Failed to log in. The error below occurred:" << std::endl << response_msg;
+            std::cerr << "*** Failed to log in. The error below occurred:" << std::endl << response_msg << std::endl;
         }
     }
     catch (const std::exception &e) {
