@@ -6,12 +6,10 @@
 
 std::string pwd_input(std::string prompt) {
     std::string pwd;
-#ifdef MSC_VER
-    char ch='\0';
-    while(ch!='\n'){
-        ch=getch();
-        pwd+=ch;
-    }
+#ifdef __WIN32__
+    std::cout << prompt;
+    /* TODO: more elegant way */
+    std::cin >> pwd;
 #else
     pwd = getpass(prompt.c_str());
 #endif

@@ -35,7 +35,7 @@ int AuthWorker::auth(std::string username, std::string password) {
     this->password = password;
 
     std::cout << std::endl << "*** Start authenticating..." << std::endl;
-    std::cout << std::endl << "*** Authenticate Username: " << username << std::endl;
+    std::cout << "*** Authenticate Username: " << username << std::endl;
     get_info();
 
     std::string info, hmd5, chksum;
@@ -119,7 +119,6 @@ void AuthWorker::fetch_ip(const std::string &data) {
 }
 
 void AuthWorker::build_auth_info(std::string &info, std::string &hmd5, std::string &checksum) {
-    //{"username":"asd","password":"asd","ip":"183.172.106.23","acid":"135","enc_ver":"srun_bx1"}
     std::stringstream ss;
     ss << R"({"username":")" << username << R"(","password":")" << password << R"(","ip":")" << ip_addr
        << R"(","acid":")" << ac_id << R"(","enc_ver":"srun_bx1"})";
