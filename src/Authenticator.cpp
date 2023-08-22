@@ -5,7 +5,7 @@
 #include <sstream>
 
 #include "../lib/Encoder.h"
-#include "../include/AuthWorker.h"
+#include "../include/Authenticator.h"
 #include "../include/SrunBase64.h"
 #include "../include/SrunMd5.h"
 #include "../include/SrunSHA1.h"
@@ -13,8 +13,8 @@
 
 const static std::string banner = "****** thulogin ******\r\n*** Initializing\r\n";
 
-AuthWorker::AuthWorker(std::string base_url, std::string ac_id,
-                       std::string user_agent) :
+Authenticator::Authenticator(std::string base_url, std::string ac_id,
+                             std::string user_agent) :
         base_url(base_url), ac_id(ac_id), user_agent(user_agent) {
     if (base_url[base_url.size() - 1] == '/') {
         base_url.pop_back();
@@ -30,7 +30,7 @@ AuthWorker::AuthWorker(std::string base_url, std::string ac_id,
     std::cout << "*** Auth U/A: " << user_agent << std::endl;
 }
 
-int AuthWorker::auth(std::string username, std::string password) {
+int Authenticator::auth(std::string username, std::string password) {
     this->username = username;
     this->password = password;
 
@@ -67,7 +67,7 @@ int AuthWorker::auth(std::string username, std::string password) {
     return 0;
 }
 
-void AuthWorker::get_info() {
+void Authenticator::get_info() {
     try {
         std::stringstream ss;
         ss << challenge_api_url << "?callback=jQuery11240645308969715664_" << getTimestamp()
@@ -85,7 +85,7 @@ void AuthWorker::get_info() {
 }
 
 /* milliseconds */
-std::time_t AuthWorker::getTimestamp() {
+std::time_t Authenticator::getTimestamp() {
     std::chrono::time_point<std::chrono::system_clock, std::chrono::milliseconds> tp = std::chrono::time_point_cast<std::chrono::milliseconds>(
             std::chrono::system_clock::now());
     auto tmp = std::chrono::duration_cast<std::chrono::milliseconds>(tp.time_since_epoch());
@@ -93,7 +93,7 @@ std::time_t AuthWorker::getTimestamp() {
     return timestamp;
 }
 
-void AuthWorker::fetch_from_json(const std::string &data, const std::string &prop, std::string &dest) {
+void Authenticator::fetch_from_json(const std::string &data, const std::string &prop, std::string &dest) {
     std::string prop_match = "\"" + prop + "\":";
     size_t prop_ptr = data.find(prop_match);
     prop_ptr += prop_match.size();
@@ -110,15 +110,15 @@ void AuthWorker::fetch_from_json(const std::string &data, const std::string &pro
     dest.pop_back();
 }
 
-void AuthWorker::fetch_token(const std::string &data) {
+void Authenticator::fetch_token(const std::string &data) {
     fetch_from_json(data, "challenge", token);
 }
 
-void AuthWorker::fetch_ip(const std::string &data) {
+void Authenticator::fetch_ip(const std::string &data) {
     fetch_from_json(data, "client_ip", ip_addr);
 }
 
-void AuthWorker::build_auth_info(std::string &info, std::string &hmd5, std::string &checksum) {
+void Authenticator::build_auth_info(std::string &info, std::string &hmd5, std::string &checksum) {
     std::stringstream ss;
     ss << R"({"username":")" << username << R"(","password":")" << password << R"(","ip":")" << ip_addr
        << R"(","acid":")" << ac_id << R"(","enc_ver":"srun_bx1"})";
@@ -134,7 +134,7 @@ void AuthWorker::build_auth_info(std::string &info, std::string &hmd5, std::stri
     checksum = get_sha1(checksum);
 }
 
-int AuthWorker::fetch_error_state(const std::string &data) {
+int Authenticator::fetch_error_state(const std::string &data) {
     fetch_from_json(data, "error", error_state);
     if (error_state == "ok") {
         fetch_from_json(data, "suc_msg", response_msg);

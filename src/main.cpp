@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../include/AuthWorker.h"
+#include "../include/Authenticator.h"
 #include "../include/PwdInput.h"
 
 /*
@@ -17,7 +17,7 @@
  *  tsinghua-5g tsinghua: 135
  * */
 int main(int argc, char **argv) {
-    AuthWorker au("http://auth4.tsinghua.edu.cn", "135");
+    Authenticator au("http://auth4.tsinghua.edu.cn", "135");
     std::string user, pwd;
     if (argc == 1) {
         std::cout << "Username:";
