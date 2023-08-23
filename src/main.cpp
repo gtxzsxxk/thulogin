@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
     argc_value = argc;
     if (argc > 1) {
         int ptr = 1;
-        while (ptr < argc-1) {
+        while (ptr < argc - 1) {
             if (load_parameters(ptr, argv)) {
                 std::cerr << "Aborted in parameters parse." << std::endl;
                 return -1;
@@ -69,17 +69,19 @@ int load_parameters(int &ptr, char **argv) {
         ac_id = "173";
     } else if (!strcmp(argv[ptr], "--username")) {
         if (!argv_param_validate(ptr, argv)) {
-            user = argv[++ptr];
+            user = argv[ptr + 1];
             username_acquired = 0;
+            ptr += 2;
             return 0;
         } else {
             std::cerr << "Invalid input near '--username'" << std::endl;
             return -1;
         }
-    } else if (!strcmp(argv[ptr], "--pwd")||!strcmp(argv[ptr], "--password")) {
+    } else if (!strcmp(argv[ptr], "--pwd") || !strcmp(argv[ptr], "--password")) {
         if (!argv_param_validate(ptr, argv)) {
-            pwd = argv[++ptr];
+            pwd = argv[ptr + 1];
             password_acquired = 0;
+            ptr += 2;
             return 0;
         } else {
             std::cerr << "Invalid input near '--pwd' or '--password'" << std::endl;
@@ -88,7 +90,8 @@ int load_parameters(int &ptr, char **argv) {
     } else if (!strcmp(argv[ptr], "--server")) {
         if (!argv_param_validate(ptr, argv)) {
             /* TODO: validate the url */
-            server = argv[++ptr];
+            server = argv[ptr + 1];
+            ptr += 2;
             return 0;
         } else {
             std::cerr << "Invalid input near '--server'" << std::endl;
@@ -96,7 +99,8 @@ int load_parameters(int &ptr, char **argv) {
         }
     } else if (!strcmp(argv[ptr], "--ua")) {
         if (!argv_param_validate(ptr, argv)) {
-            user_agent = argv[++ptr];
+            user_agent = argv[ptr + 1];
+            ptr += 2;
             return 0;
         } else {
             std::cerr << "Invalid input near '--ua'" << std::endl;
@@ -104,7 +108,8 @@ int load_parameters(int &ptr, char **argv) {
         }
     } else if (!strcmp(argv[ptr], "--ac-id")) {
         if (!argv_param_validate(ptr, argv)) {
-            ac_id = argv[++ptr];
+            ac_id = argv[ptr + 1];
+            ptr += 2;
             return 0;
         } else {
             std::cerr << "Invalid input near '--ac-id'" << std::endl;
