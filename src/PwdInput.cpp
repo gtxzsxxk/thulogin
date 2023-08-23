@@ -6,7 +6,7 @@
 
 std::string pwd_input(std::string prompt) {
     std::string pwd;
-#ifdef __WIN32__
+#if defined(_WIN32) || defined(__CYGWIN__)
     std::cout << prompt;
     /* TODO: more elegant way */
     std::cin >> pwd;
