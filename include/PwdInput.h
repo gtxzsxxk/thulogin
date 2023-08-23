@@ -7,7 +7,7 @@
 
 #include <string>
 
-#ifdef __WIN32__
+#if defined(_WIN32) || defined(__CYGWIN__)
 #include <iostream>
 #include <conio.h>
 #else
