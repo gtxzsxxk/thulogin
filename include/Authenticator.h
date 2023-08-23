@@ -39,7 +39,7 @@ class Authenticator {
 
 public:
     Authenticator(std::string base_url, std::string ac_id,
-                  std::string user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+                  std::string user_agent);
 
     int auth(std::string username, std::string password);
 };
