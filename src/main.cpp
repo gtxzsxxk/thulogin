@@ -10,7 +10,7 @@
  * ./thulogin
  * ./thulogin username
  * ./thulogin --wifi --ethernet
- * ./thulogin --username username --pwd pwd
+ * ./thulogin --username username [--pwd||--password] pwd
  * ./thulogin --server url --ua user-agent --ac-id ac_id
  *
  * ac_id:
@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
     argc_value = argc;
     if (argc > 1) {
         int ptr = 1;
-        while (ptr < argc) {
+        while (ptr < argc-1) {
             if (load_parameters(ptr, argv)) {
                 std::cerr << "Aborted in parameters parse." << std::endl;
                 return -1;
@@ -76,13 +76,13 @@ int load_parameters(int &ptr, char **argv) {
             std::cerr << "Invalid input near '--username'" << std::endl;
             return -1;
         }
-    } else if (!strcmp(argv[ptr], "--pwd")) {
+    } else if (!strcmp(argv[ptr], "--pwd")||!strcmp(argv[ptr], "--password")) {
         if (!argv_param_validate(ptr, argv)) {
             pwd = argv[++ptr];
             password_acquired = 0;
             return 0;
         } else {
-            std::cerr << "Invalid input near '--pwd'" << std::endl;
+            std::cerr << "Invalid input near '--pwd' or '--password'" << std::endl;
             return -1;
         }
     } else if (!strcmp(argv[ptr], "--server")) {
