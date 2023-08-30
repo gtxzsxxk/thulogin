@@ -67,7 +67,7 @@ int load_parameters(int &ptr, char **argv) {
         ac_id = "135";
     } else if (!strcmp(argv[ptr], "--ethernet")) {
         ac_id = "173";
-    } else if (!strcmp(argv[ptr], "--username")) {
+    } else if (!strcmp(argv[ptr], "--username")||!strcmp(argv[ptr], "--user")) {
         if (!argv_param_validate(ptr, argv)) {
             user = argv[ptr + 1];
             username_acquired = 0;
