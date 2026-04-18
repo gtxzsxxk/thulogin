@@ -7,3 +7,8 @@
 std::string get_hmac_md5(const std::string &password, const std::string &token) {
     return hmac<MD5>(password, token);
 }
+
+std::string get_md5(const std::string& password) {
+    MD5 md5;
+    return md5(password);
+}

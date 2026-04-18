@@ -5,13 +5,25 @@
 #include <sstream>
 
 #include "../lib/Encoder.h"
+#include "../lib/json.hpp"
+using json = nlohmann::json;
 #include "../include/Authenticator.h"
 #include "../include/SrunBase64.h"
 #include "../include/SrunMd5.h"
 #include "../include/SrunSHA1.h"
 #include "../include/SrunXEncode.h"
+#include "../include/HTTPSClient.h"
+#include <regex>
 
 const static std::string banner = "****** thulogin ******\r\n*** Initializing\r\n";
+
+static std::string strip_jsonp(const std::string& data) {
+    size_t paren = data.find('(');
+    if (paren != std::string::npos && data.back() == ')') {
+        return data.substr(paren + 1, data.size() - paren - 2);
+    }
+    return data;
+}
 
 Authenticator::Authenticator(std::string base_url, std::string ac_id,
                              std::string user_agent) :
@@ -50,13 +62,13 @@ int Authenticator::auth(std::string username, std::string password) {
        << encoder.UrlEncode(username) << "&password={MD5}" << encoder.UrlEncode(hmd5) << "&ac_id="
        << encoder.UrlEncode(ac_id)
        << "&ip=" << encoder.UrlEncode(ip_addr) << "&chksum=" << encoder.UrlEncode(chksum)
-       << "&info=" << encoder.UrlEncode(info) << "&n=200&type=1&os=windows+10&name=windows&double_stack=1&_="
+       << "&info=" << encoder.UrlEncode(info) << "&n=200&type=1&double_stack=1&_="
        << getTimestamp();
     std::string url_with_params = ss.str();
     try {
-        http::Request request(url_with_params);
-        const auto response = request.send("GET", "", headers);
-        std::string result = std::string{response.body.begin(), response.body.end()};
+        HTTPSClient client;
+        auto response = client.get(url_with_params, headers);
+        std::string result = strip_jsonp(response);
         if (!fetch_error_state(result)) {
             std::cout << "*** Logged in successfully!" << std::endl;
         } else {
@@ -70,15 +82,117 @@ int Authenticator::auth(std::string username, std::string password) {
     return 0;
 }
 
+int Authenticator::logout() {
+    if (get_info() != 0) {
+        std::cerr << "Failed to fetch auth token for logout." << std::endl;
+        return -1;
+    }
+
+    // Build info JSON without password field
+    std::stringstream ss_info;
+    ss_info << R"({"username":")" << username << R"(","ip":")" << ip_addr
+           << R"(","acid":")" << ac_id << R"(","enc_ver":"srun_bx1"})";
+    std::string info = "{SRBX1}" + get_base64_string(x_encode(ss_info.str(), token));
+
+    // Build checksum without hmd5
+    std::string checksum = token + username;
+    checksum += token + ac_id;
+    checksum += token + ip_addr;
+    checksum += token + "200";
+    checksum += token + "1";
+    checksum += token + info;
+    checksum = get_sha1(checksum);
+
+    std::stringstream ss;
+    Encoder encoder;
+    ss << portal_api_url << "?callback=jQuery11240645308969715664_" << getTimestamp()
+       << "&action=logout&username=" << encoder.UrlEncode(username)
+       << "&ac_id=" << encoder.UrlEncode(ac_id)
+       << "&ip=" << encoder.UrlEncode(ip_addr)
+       << "&chksum=" << encoder.UrlEncode(checksum)
+       << "&info=" << encoder.UrlEncode(info)
+       << "&n=200&type=1&double_stack=1&_=" << getTimestamp();
+
+    std::string url_with_params = ss.str();
+    try {
+        HTTPSClient client;
+        auto response = client.get(url_with_params, headers);
+        std::string result = strip_jsonp(response);
+
+        if (!fetch_error_state(result)) {
+            std::cout << "*** Logged out successfully!" << std::endl;
+            return 0;
+        } else {
+            std::cerr << "*** Failed to log out. The error below occurred:" << std::endl << response_msg << std::endl;
+            return -1;
+        }
+    }
+    catch (const std::exception &e) {
+        std::cerr << "Failed when trying to logout." << std::endl;
+        return -1;
+    }
+}
+
+bool Authenticator::is_online(std::string& out_username) {
+    out_username = "";
+    try {
+        // Step 1: GET /srun_portal_pc to find IP
+        std::stringstream ss;
+        ss << base_url << "/srun_portal_pc?ac_id=" << ac_id;
+        HTTPSClient client;
+        auto response = client.get(ss.str(), headers);
+
+        // Extract IP with regex: ip\s+:\s"([0-9.]+)"
+        std::regex ip_regex(R"regex(ip\s+:\s"([0-9.]+)")regex");
+        std::smatch match;
+        if (!std::regex_search(response, match, ip_regex) || match.size() < 2) {
+            return false;
+        }
+        std::string ip = match[1].str();
+
+        // Step 2: GET /cgi-bin/rad_user_info to check online status
+        std::stringstream ss2;
+        ss2 << base_url << "/cgi-bin/rad_user_info?ip=" << ip;
+        auto info = client.get(ss2.str(), headers);
+
+        auto j = json::parse(strip_jsonp(info));
+        if (j.contains("error") && j["error"] == "ok") {
+            if (j.contains("user_name")) {
+                out_username = j["user_name"].get<std::string>();
+            }
+            return true;
+        }
+    } catch (...) {}
+    return false;
+}
+
+std::string Authenticator::detect_ac_id(bool v6) {
+    std::string url = "http://login.tsinghua.edu.cn/index_1.html";
+    if (v6) {
+        url = "http://mirrors6.tuna.tsinghua.edu.cn/";
+    }
+    try {
+        HTTPSClient client;
+        auto response = client.get(url);
+
+        std::regex ac_regex(R"((ac_id=|index_)([0-9]+))");
+        std::smatch match;
+        if (std::regex_search(response, match, ac_regex) && match.size() >= 3) {
+            return match[2].str();
+        }
+    } catch (...) {}
+    return "1";
+}
+
 int Authenticator::get_info() {
     try {
         std::stringstream ss;
         ss << challenge_api_url << "?callback=jQuery11240645308969715664_" << getTimestamp()
-           << "&username=" << username << "&ip=&_=" << getTimestamp();
+           << "&username=" << username << "&ip=&double_stack=1&_=" << getTimestamp();
         std::string url_with_params(ss.str());
-        http::Request request(url_with_params);
-        const auto response = request.send("GET", "", headers);
-        std::string result = std::string{response.body.begin(), response.body.end()};
+        HTTPSClient client;
+        auto response = client.get(url_with_params, headers);
+        std::string result = strip_jsonp(response);
         fetch_ip(result);
         fetch_token(result);
         if (ip_addr.empty() || token.empty()) {
@@ -104,26 +218,17 @@ std::time_t Authenticator::getTimestamp() {
 
 void Authenticator::fetch_from_json(const std::string &data, const std::string &prop, std::string &dest) {
     dest = "";
-    std::string prop_match = "\"" + prop + "\":";
-    size_t prop_ptr = data.find(prop_match);
-    if (prop_ptr == std::string::npos) {
-        return;
-    }
-    prop_ptr += prop_match.size();
-    if (prop_ptr >= data.size()) {
-        return;
-    }
-    int counter = 0;
-    while (counter < 2 && prop_ptr < data.size()) {
-        if (data[prop_ptr++] == '"') {
-            counter++;
+    try {
+        auto j = json::parse(data);
+        if (j.contains(prop)) {
+            if (j[prop].is_string()) {
+                dest = j[prop].get<std::string>();
+            } else if (j[prop].is_number()) {
+                dest = std::to_string(j[prop].get<int>());
+            }
         }
-        if (counter > 0 && counter < 2 && prop_ptr < data.size()) {
-            dest += data[prop_ptr];
-        }
-    }
-    if (!dest.empty()) {
-        dest.pop_back();
+    } catch (const std::exception& e) {
+        // parse failed, dest remains empty
     }
 }
 
@@ -140,7 +245,7 @@ void Authenticator::build_auth_info(std::string &info, std::string &hmd5, std::s
     ss << R"({"username":")" << username << R"(","password":")" << password << R"(","ip":")" << ip_addr
        << R"(","acid":")" << ac_id << R"(","enc_ver":"srun_bx1"})";
     info = "{SRBX1}" + get_base64_string(x_encode(ss.str(), token));
-    hmd5 = get_hmac_md5(password, token);
+    hmd5 = get_md5(password);
     checksum = (token + username);
     checksum += (token + hmd5);
     checksum += (token + ac_id);

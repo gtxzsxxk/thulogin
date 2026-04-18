@@ -7,7 +7,7 @@
 
 #include <string>
 #include <ctime>
-#include "../lib/HTTPRequest.hpp"
+#include <map>
 
 class Authenticator {
     std::string base_url;
@@ -21,7 +21,7 @@ class Authenticator {
     std::string token;
     std::string error_state;
     std::string response_msg;
-    http::HeaderFields headers;
+    std::map<std::string, std::string> headers;
 
     int get_info();
 
@@ -42,6 +42,12 @@ public:
                   std::string user_agent);
 
     int auth(std::string username, std::string password);
+
+    int logout();
+
+    bool is_online(std::string& out_username);
+
+    std::string detect_ac_id(bool v6 = false);
 };
 
 

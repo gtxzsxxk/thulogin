@@ -10,4 +10,6 @@
 
 std::string get_hmac_md5(const std::string &password, const std::string &token);
 
+std::string get_md5(const std::string& password);
+
 #endif //THULOGIN_SRUNMD5_H
