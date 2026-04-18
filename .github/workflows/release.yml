@@ -1,0 +1,74 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - arch: x86_64
+            cxx: g++
+            strip: strip
+          - arch: aarch64
+            cxx: aarch64-linux-gnu-g++
+            strip: aarch64-linux-gnu-strip
+          - arch: riscv64
+            cxx: riscv64-linux-gnu-g++
+            strip: riscv64-linux-gnu-strip
+          - arch: mipsel
+            cxx: mipsel-linux-gnu-g++
+            strip: mipsel-linux-gnu-strip
+          - arch: arm
+            cxx: arm-linux-gnueabihf-g++
+            strip: arm-linux-gnueabihf-strip
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install cross-compilers
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+          sudo apt-get install -y gcc-riscv64-linux-gnu g++-riscv64-linux-gnu
+          sudo apt-get install -y gcc-mipsel-linux-gnu g++-mipsel-linux-gnu
+          sudo apt-get install -y gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
+
+      - name: Build
+        run: make CXX=${{ matrix.cxx }}
+
+      - name: Strip binary
+        run: ${{ matrix.strip }} thulogin
+
+      - name: Generate SHA256
+        run: sha256sum thulogin > thulogin.sha256
+
+      - name: Package
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          tar czf thulogin-${VERSION}-${{ matrix.arch }}.tar.gz thulogin thulogin.sha256 README.md LICENSE
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: thulogin-${{ matrix.arch }}
+          path: thulogin-*.tar.gz
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+          pattern: thulogin-*
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: artifacts/**/*.tar.gz
+          generate_release_notes: true
