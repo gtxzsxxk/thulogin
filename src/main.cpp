@@ -116,7 +116,12 @@ static std::string parseSubcommand(int argc, char** argv) {
     std::string subcommand = "auth";
     for (int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
-        if (arg[0] != '-') {
+        if (arg == "-u" || arg == "--username" ||
+            arg == "-p" || arg == "--password" ||
+            arg == "-c" || arg == "--config" ||
+            arg == "--ac-id" || arg == "--ca-file") {
+            ++i; // skip the value for this option
+        } else if (arg[0] != '-') {
             subcommand = arg;
         }
     }
