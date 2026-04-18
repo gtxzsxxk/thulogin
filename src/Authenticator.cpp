@@ -14,6 +14,7 @@ using json = nlohmann::json;
 #include "../include/SrunXEncode.h"
 #include "../include/HTTPSClient.h"
 #include "../include/PortalError.h"
+#include "../include/Logger.h"
 #include <regex>
 
 const static std::string banner = "****** thulogin ******\r\n*** Initializing\r\n";
@@ -147,23 +148,33 @@ bool Authenticator::is_online(std::string& out_username) {
         std::regex ip_regex(R"regex(ip\s*:\s*"([0-9.]+)")regex");
         std::smatch match;
         if (!std::regex_search(response, match, ip_regex) || match.size() < 2) {
+            LOG_INFO("is_online: IP not found in portal page");
             return false;
         }
         std::string ip = match[1].str();
+        LOG_INFO("is_online: detected IP=" + ip);
 
         // Step 2: GET /cgi-bin/rad_user_info to check online status
         std::stringstream ss2;
-        ss2 << base_url << "/cgi-bin/rad_user_info?ip=" << ip;
+        ss2 << base_url << "/cgi-bin/rad_user_info?callback=jQuery11240645308969715664_"
+            << getTimestamp() << "&ip=" << ip;
         auto info = client.get(ss2.str(), headers);
+        LOG_INFO("is_online: rad_user_info response length=" + std::to_string(info.size()));
 
         auto j = json::parse(strip_jsonp(info));
         if (j.contains("error") && j["error"] == "ok") {
             if (j.contains("user_name")) {
                 out_username = j["user_name"].get<std::string>();
             }
+            LOG_INFO("is_online: user is online, username=" + out_username);
             return true;
+        } else {
+            std::string err = j.contains("error") ? j["error"].get<std::string>() : "unknown";
+            LOG_INFO("is_online: user is offline, error=" + err);
         }
-    } catch (...) {}
+    } catch (const std::exception& e) {
+        LOG_INFO(std::string("is_online: exception: ") + e.what());
+    }
     return false;
 }
 
