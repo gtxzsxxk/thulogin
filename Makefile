@@ -21,6 +21,7 @@ SRCS := src/main.cpp \
         src/Config.cpp \
         src/Logger.cpp \
         src/KeepAlive.cpp \
+        src/PortalError.cpp \
         lib/HTTPSClient.cpp \
         lib/hash-lib/md5.cpp \
         lib/hash-lib/sha1.cpp \

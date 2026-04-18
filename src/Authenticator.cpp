@@ -13,6 +13,7 @@ using json = nlohmann::json;
 #include "../include/SrunSHA1.h"
 #include "../include/SrunXEncode.h"
 #include "../include/HTTPSClient.h"
+#include "../include/PortalError.h"
 #include <regex>
 
 const static std::string banner = "****** thulogin ******\r\n*** Initializing\r\n";
@@ -267,6 +268,10 @@ int Authenticator::fetch_error_state(const std::string &data) {
         fetch_from_json(data, "error_msg", response_msg);
     } else {
         fetch_from_json(data, "res", response_msg);
+    }
+    std::string cn = getPortalErrorMessage(response_msg);
+    if (!cn.empty()) {
+        response_msg += " (" + cn + ")";
     }
     return -1;
 }
