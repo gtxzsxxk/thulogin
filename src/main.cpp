@@ -192,13 +192,13 @@ static int doDeauth(const CliParams& params) {
     std::string username = params.username;
     if (username.empty()) {
         std::string onlineUser;
-        if (au.is_online(onlineUser)) {
+        if (au.is_online(onlineUser) && !onlineUser.empty()) {
             username = onlineUser;
         }
     }
 
     if (username.empty()) {
-        LOG_ERROR("Username required for logout");
+        LOG_ERROR("Username required for logout (not online and no username provided)");
         return 1;
     }
 
