@@ -1,7 +1,19 @@
 
 # thulogin
 
-CLI界面的贵校校园网登录器，使用c++编写，使用clion与cmake构建项目。
+CLI界面的贵校校园网登录器，使用C++编写，使用Makefile构建项目。
+
+构建方法：
+
+```bash
+make
+```
+
+或指定编译器：
+
+```bash
+make CXX=clang++
+```
 
 Usage：
 

@@ -1,0 +1,44 @@
+name: Build on multiple platforms
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            cxx: g++
+          - os: ubuntu-latest
+            cxx: clang++
+          - os: windows-latest
+            cxx: g++
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup MSYS2 (Windows)
+      if: matrix.os == 'windows-latest'
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        update: true
+        install: >-
+          mingw-w64-x86_64-gcc
+          mingw-w64-x86_64-make
+
+    - name: Build (Linux)
+      if: matrix.os == 'ubuntu-latest'
+      run: make CXX=${{ matrix.cxx }}
+
+    - name: Build (Windows)
+      if: matrix.os == 'windows-latest'
+      shell: msys2 {0}
+      run: make CXX=${{ matrix.cxx }}

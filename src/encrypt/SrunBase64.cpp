@@ -3,6 +3,7 @@
 //
 
 #include "../../include/SrunBase64.h"
+#include <cstdint>
 
 static BYTE pad_char = '=';
 static std::string alpha = "LVoJPiCN2R8G90yg+hmFHuacZ1OWMnrsSTXkYpUq/3dlbfKwv6xztjI7DeBE45QA";
