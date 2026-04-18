@@ -3,3 +3,6 @@
 thulogin
 thulogin.exe
 *.tar.gz
+
+# Docs (don't commit markdown specs/plans)
+docs/**/*.md
