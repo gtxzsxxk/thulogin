@@ -6,3 +6,6 @@ thulogin.exe
 
 # Docs (don't commit markdown specs/plans)
 docs/**/*.md
+
+.cache
+compile_commands.json
