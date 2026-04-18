@@ -37,13 +37,13 @@ Authenticator::Authenticator(std::string base_url, std::string ac_id,
     headers = {
             std::make_pair("User-Agent", user_agent)
     };
+}
+
+int Authenticator::auth(std::string username, std::string password) {
     std::cout << banner << std::endl;
     std::cout << "*** Auth Server: " << base_url << std::endl;
     std::cout << "*** Auth Ac_id: " << ac_id << std::endl;
     std::cout << "*** Auth U/A: " << user_agent << std::endl;
-}
-
-int Authenticator::auth(std::string username, std::string password) {
     this->username = username;
     this->password = password;
 
@@ -143,8 +143,8 @@ bool Authenticator::is_online(std::string& out_username) {
         HTTPSClient client;
         auto response = client.get(ss.str(), headers);
 
-        // Extract IP with regex: ip\s+:\s"([0-9.]+)"
-        std::regex ip_regex(R"regex(ip\s+:\s"([0-9.]+)")regex");
+        // Extract IP with regex: ip\s*:\s*"([0-9.]+)"
+        std::regex ip_regex(R"regex(ip\s*:\s*"([0-9.]+)")regex");
         std::smatch match;
         if (!std::regex_search(response, match, ip_regex) || match.size() < 2) {
             return false;

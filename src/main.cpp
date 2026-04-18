@@ -147,12 +147,12 @@ static int doAuth(const CliParams& params) {
     std::string baseUrl = "https://" + host;
 
     std::string acId = params.acId;
+    Authenticator au(baseUrl, acId.empty() ? "1" : acId, USER_AGENT);
     if (acId.empty()) {
-        Authenticator au(baseUrl, "1", USER_AGENT);
         acId = au.detect_ac_id(params.ipv6);
+        au.setAcId(acId);
     }
 
-    Authenticator au(baseUrl, acId, USER_AGENT);
     if (!params.caFile.empty()) {
         // TODO: au.setCaFile(params.caFile); // Not yet implemented in Authenticator
         (void)0;
@@ -183,12 +183,11 @@ static int doDeauth(const CliParams& params) {
     std::string baseUrl = "https://" + host;
 
     std::string acId = params.acId;
+    Authenticator au(baseUrl, acId.empty() ? "1" : acId, USER_AGENT);
     if (acId.empty()) {
-        Authenticator au(baseUrl, "1", USER_AGENT);
         acId = au.detect_ac_id(params.ipv6);
+        au.setAcId(acId);
     }
-
-    Authenticator au(baseUrl, acId, USER_AGENT);
 
     std::string username = params.username;
     if (username.empty()) {

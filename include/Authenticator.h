@@ -44,6 +44,7 @@ public:
     int auth(std::string username, std::string password);
 
     void setUsername(const std::string& u) { username = u; }
+    void setAcId(const std::string& id) { ac_id = id; }
 
     int logout();
 
