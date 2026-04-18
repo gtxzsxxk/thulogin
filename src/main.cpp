@@ -198,6 +198,7 @@ static int doDeauth(const CliParams& params) {
         return 1;
     }
 
+    au.setUsername(username);
     return au.logout();
 }
 
