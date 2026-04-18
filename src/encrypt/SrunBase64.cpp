@@ -5,14 +5,14 @@
 #include "../../include/SrunBase64.h"
 #include <cstdint>
 
-static BYTE pad_char = '=';
-static std::string alpha = "LVoJPiCN2R8G90yg+hmFHuacZ1OWMnrsSTXkYpUq/3dlbfKwv6xztjI7DeBE45QA";
+static const BYTE pad_char = '=';
+static const std::string alpha = "LVoJPiCN2R8G90yg+hmFHuacZ1OWMnrsSTXkYpUq/3dlbfKwv6xztjI7DeBE45QA";
 
-std::string get_base64_string(std::string s) {
-    int i;
+std::string get_base64_string(const std::string &s) {
+    size_t i;
     uint32_t b10;
     std::vector<BYTE> x;
-    int imax = s.length() - s.length() % 3;
+    size_t imax = s.length() - s.length() % 3;
     if (s.length() == 0) {
         return s;
     }
@@ -40,6 +40,7 @@ std::string get_base64_string(std::string s) {
             x.push_back(pad_char);
     }
     std::string result;
+    result.reserve(x.size());
     for (i = 0; i < x.size(); i++) {
         result += x[i];
     }

@@ -13,9 +13,9 @@ class Authenticator {
     std::string base_url;
     std::string challenge_api_url;
     std::string portal_api_url;
+    std::string ac_id;
     std::string user_agent;
     std::string ip_addr;
-    std::string ac_id;
     std::string username;
     std::string password;
     std::string token;
@@ -23,7 +23,7 @@ class Authenticator {
     std::string response_msg;
     http::HeaderFields headers;
 
-    void get_info();
+    int get_info();
 
     static void fetch_from_json(const std::string &data, const std::string &prop, std::string &dest);
 

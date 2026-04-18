@@ -9,8 +9,11 @@
 std::vector<size_t> s(const std::string &a, bool b) {
     size_t c = a.size();
     std::vector<size_t> v;
-    for (auto i = 0; i < c; i += 4) {
-        size_t temp = (a[i]) | (a[i + 1] << 8) | (a[i + 2] << 16) | (a[i + 3] << 24);
+    for (size_t i = 0; i < c; i += 4) {
+        size_t temp = (static_cast<unsigned char>(a[i])) |
+                      ((i + 1 < c ? static_cast<unsigned char>(a[i + 1]) : 0) << 8) |
+                      ((i + 2 < c ? static_cast<unsigned char>(a[i + 2]) : 0) << 16) |
+                      ((i + 3 < c ? static_cast<unsigned char>(a[i + 3]) : 0) << 24);
         v.push_back(temp);
     }
     if (b) {
@@ -22,6 +25,9 @@ std::vector<size_t> s(const std::string &a, bool b) {
 std::string l(const std::vector<size_t> &a, bool b) {
     std::string res;
     auto d = a.size();
+    if (d == 0) {
+        return "";
+    }
     auto c = (d - 1) << 2;
     if (b) {
         auto m = a[d - 1];
@@ -29,7 +35,7 @@ std::string l(const std::vector<size_t> &a, bool b) {
             return "";
         c = m;
     }
-    for (auto i = 0; i < d; i++) {
+    for (size_t i = 0; i < d; i++) {
         std::string temp;
         temp += (char) (a[i] & 0xff);
         temp += (char) (a[i] >> 8 & 0xff);
@@ -53,6 +59,9 @@ std::string x_encode(std::string str, std::string key) {
     while (k.size() < 4) {
         k.push_back(0);
     }
+    if (v.size() < 2) {
+        return l(v, false);
+    }
     auto n = v.size() - 1;
     auto z = v[n];
     auto y = v[0];
@@ -63,14 +72,14 @@ std::string x_encode(std::string str, std::string key) {
             q = std::floor(6.0 + 52.0 / ((double) n + 1.0)),
             d = 0;
     while (0 < q--) {
-        d = d + c & (0x8CE0D9BF | 0x731F2640);
+        d = (d + c) & (0x8CE0D9BF | 0x731F2640);
         e = d >> 2 & 3;
         for (p = 0; p < n; p++) {
             y = v[p + 1];
             m = z >> 5 ^ y << 2;
             m += ((y >> 3) ^ (z << 4)) ^ (d ^ y);
             m += k[(p & 3) ^ e] ^ z;
-            size_t temp = v[p] + m & (0xEFB8D130 | 0x10472ECF);
+            size_t temp = (v[p] + m) & (0xEFB8D130 | 0x10472ECF);
             v[p] = temp;
             z = temp;
         }
@@ -78,7 +87,7 @@ std::string x_encode(std::string str, std::string key) {
         m = (z >> 5) ^ (y << 2);
         m += ((y >> 3) ^ (z << 4)) ^ (d ^ y);
         m += k[(p & 3) ^ e] ^ z;
-        size_t temp = v[n] + m & (0xBB390742 | 0x44C6F8BD);
+        size_t temp = (v[n] + m) & (0xBB390742 | 0x44C6F8BD);
         v[n] = temp;
         z = temp;
     }

@@ -13,6 +13,7 @@
 #else
 
 #include <unistd.h>
+#include <termios.h>
 
 #endif
 

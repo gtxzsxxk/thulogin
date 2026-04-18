@@ -6,17 +6,17 @@ using namespace std;
 string Encoder::UrlEncode(const string &str) {
     string strResult;
     size_t nLength = str.length();
-    unsigned char *pBytes = (unsigned char *) str.c_str();
+    const unsigned char *pBytes = reinterpret_cast<const unsigned char *>(str.c_str());
     char szAlnum[2];
     char szOther[4];
     for (size_t i = 0; i < nLength; i++) {
         if (isalnum((BYTE) str[i])) {
-            sprintf(szAlnum, "%c", str[i]);
+            snprintf(szAlnum, sizeof(szAlnum), "%c", str[i]);
             strResult.append(szAlnum);
         } else if (isspace((BYTE) str[i])) {
             strResult.append("+");
         } else {
-            sprintf(szOther, "%%%X%X", pBytes[i] >> 4, pBytes[i] % 16);
+            snprintf(szOther, sizeof(szOther), "%%%X%X", pBytes[i] >> 4, pBytes[i] % 16);
             strResult.append(szOther);
         }
     }
@@ -29,7 +29,7 @@ string Encoder::UrlDecode(const string &str) {
     size_t i = 0;
     size_t nLength = str.length();
     while (i < nLength) {
-        if (str[i] == '%') {
+        if (str[i] == '%' && i + 2 < nLength) {
             szTemp[0] = str[i + 1];
             szTemp[1] = str[i + 2];
             strResult += StrToBin(szTemp);
@@ -59,11 +59,15 @@ char Encoder::CharToInt(char ch) {
     return -1;
 }
 
-char Encoder::StrToBin(char *pString) {
+char Encoder::StrToBin(const char *pString) {
     char szBuffer[2];
     char ch;
     szBuffer[0] = CharToInt(pString[0]); //make the B to 11 -- 00001011
     szBuffer[1] = CharToInt(pString[1]); //make the 0 to 0 -- 00000000
-    ch = (szBuffer[0] << 4) | szBuffer[1]; //to change the BO to 10110000
+    if (szBuffer[0] < 0 || szBuffer[1] < 0) {
+        return '\0';
+    }
+    ch = (static_cast<unsigned char>(szBuffer[0]) << 4) |
+         static_cast<unsigned char>(szBuffer[1]); //to change the BO to 10110000
     return ch;
 }

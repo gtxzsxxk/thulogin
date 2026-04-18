@@ -15,6 +15,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 int main(int argc, char** argv)
 {
@@ -65,31 +66,30 @@ int main(int argc, char** argv)
 
   // each cycle processes about 1 MByte (divisible by 144 => improves Keccak/SHA3 performance)
   const size_t BufferSize = 144*7*1024;
-  char* buffer = new char[BufferSize];
+  std::vector<char> buffer(BufferSize);
 
   // process file
   while (*input)
   {
-    input->read(buffer, BufferSize);
+    input->read(buffer.data(), BufferSize);
     std::size_t numBytesRead = size_t(input->gcount());
 
     if (computeCrc32)
-      digestCrc32 .add(buffer, numBytesRead);
+      digestCrc32 .add(buffer.data(), numBytesRead);
     if (computeMd5)
-      digestMd5   .add(buffer, numBytesRead);
+      digestMd5   .add(buffer.data(), numBytesRead);
     if (computeSha1)
-      digestSha1  .add(buffer, numBytesRead);
+      digestSha1  .add(buffer.data(), numBytesRead);
     if (computeSha2)
-      digestSha2  .add(buffer, numBytesRead);
+      digestSha2  .add(buffer.data(), numBytesRead);
     if (computeKeccak)
-      digestKeccak.add(buffer, numBytesRead);
+      digestKeccak.add(buffer.data(), numBytesRead);
     if (computeSha3)
-      digestSha3  .add(buffer, numBytesRead);
+      digestSha3  .add(buffer.data(), numBytesRead);
   }
 
   // clean up
   file.close();
-  delete[] buffer;
 
   // show results
   if (computeCrc32)

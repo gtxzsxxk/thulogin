@@ -16,7 +16,7 @@ const static std::string banner = "****** thulogin ******\r\n*** Initializing\r\
 Authenticator::Authenticator(std::string base_url, std::string ac_id,
                              std::string user_agent) :
         base_url(base_url), ac_id(ac_id), user_agent(user_agent) {
-    if (base_url[base_url.size() - 1] == '/') {
+    if (!base_url.empty() && base_url.back() == '/') {
         base_url.pop_back();
     }
     challenge_api_url = base_url + "/cgi-bin/get_challenge";
@@ -36,7 +36,10 @@ int Authenticator::auth(std::string username, std::string password) {
 
     std::cout << std::endl << "*** Start authenticating..." << std::endl;
     std::cout << "*** Authenticate Username: " << username << std::endl;
-    get_info();
+    if (get_info() != 0) {
+        std::cerr << "*** Failed to fetch auth token. Aborting." << std::endl;
+        return -1;
+    }
 
     std::string info, hmd5, chksum;
     build_auth_info(info, hmd5, chksum);
@@ -67,7 +70,7 @@ int Authenticator::auth(std::string username, std::string password) {
     return 0;
 }
 
-void Authenticator::get_info() {
+int Authenticator::get_info() {
     try {
         std::stringstream ss;
         ss << challenge_api_url << "?callback=jQuery11240645308969715664_" << getTimestamp()
@@ -78,9 +81,15 @@ void Authenticator::get_info() {
         std::string result = std::string{response.body.begin(), response.body.end()};
         fetch_ip(result);
         fetch_token(result);
+        if (ip_addr.empty() || token.empty()) {
+            std::cerr << "Failed to parse IP or token from server response." << std::endl;
+            return -1;
+        }
+        return 0;
     }
     catch (const std::exception &e) {
         std::cerr << "Failed when trying to fetch the auth token." << std::endl;
+        return -1;
     }
 }
 
@@ -94,20 +103,28 @@ std::time_t Authenticator::getTimestamp() {
 }
 
 void Authenticator::fetch_from_json(const std::string &data, const std::string &prop, std::string &dest) {
+    dest = "";
     std::string prop_match = "\"" + prop + "\":";
     size_t prop_ptr = data.find(prop_match);
+    if (prop_ptr == std::string::npos) {
+        return;
+    }
     prop_ptr += prop_match.size();
+    if (prop_ptr >= data.size()) {
+        return;
+    }
     int counter = 0;
-    dest = "";
-    while (counter < 2) {
+    while (counter < 2 && prop_ptr < data.size()) {
         if (data[prop_ptr++] == '"') {
             counter++;
         }
-        if (counter > 0 && counter < 2) {
+        if (counter > 0 && counter < 2 && prop_ptr < data.size()) {
             dest += data[prop_ptr];
         }
     }
-    dest.pop_back();
+    if (!dest.empty()) {
+        dest.pop_back();
+    }
 }
 
 void Authenticator::fetch_token(const std::string &data) {

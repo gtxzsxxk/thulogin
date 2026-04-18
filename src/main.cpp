@@ -54,10 +54,8 @@ int argv_param_validate(int &ptr, char **argv) {
     if (ptr + 1 >= argc_value) {
         return -1;
     }
-    if (strlen(argv[ptr + 1]) > 2) {
-        if (argv[ptr + 1][0] == '-' && argv[ptr + 1][1] == '-') {
-            return -1;
-        }
+    if (argv[ptr + 1][0] == '-' && argv[ptr + 1][1] == '-') {
+        return -1;
     }
     return 0;
 }

@@ -9,6 +9,6 @@
 #include <vector>
 #include "Types.h"
 
-std::string get_base64_string(std::string s);
+std::string get_base64_string(const std::string &s);
 
 #endif //THULOGIN_SRUNBASE64_H

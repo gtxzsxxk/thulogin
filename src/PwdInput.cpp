@@ -3,6 +3,7 @@
 //
 
 #include "../include/PwdInput.h"
+#include <iostream>
 
 std::string pwd_input(std::string prompt) {
     std::string pwd;
@@ -11,7 +12,15 @@ std::string pwd_input(std::string prompt) {
     /* TODO: more elegant way */
     std::cin >> pwd;
 #else
-    pwd = getpass(prompt.c_str());
+    std::cout << prompt;
+    struct termios oldt, newt;
+    tcgetattr(STDIN_FILENO, &oldt);
+    newt = oldt;
+    newt.c_lflag &= ~ECHO;
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+    std::getline(std::cin, pwd);
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+    std::cout << std::endl;
 #endif
     return pwd;
 }

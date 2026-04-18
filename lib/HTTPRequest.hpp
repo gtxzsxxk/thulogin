@@ -440,7 +440,7 @@ namespace http
                             throw std::system_error{WSAGetLastError(), winsock::errorCategory, "Failed to get socket option"};
 
                         int socketError;
-                        std::memcpy(&socketError, socketErrorPointer, sizeof(socketErrorPointer));
+                        std::memcpy(&socketError, socketErrorPointer, sizeof(socketError));
 
                         if (socketError != 0)
                             throw std::system_error{socketError, winsock::errorCategory, "Failed to connect"};

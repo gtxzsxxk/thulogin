@@ -16,5 +16,5 @@ public:
 private:
     char CharToInt(char ch);
 
-    char StrToBin(char *pString);
+    char StrToBin(const char *pString);
 };
