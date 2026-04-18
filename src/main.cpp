@@ -225,6 +225,22 @@ int main(int argc, char** argv) {
         passwordFromCli = true;
     }
 
+    std::string subcommand = parseSubcommand(argc, argv);
+
+    if (subcommand == "deauth") {
+        // deauth: password not needed; username can be auto-detected via is_online
+        if (!params.daemon && params.username.empty()) {
+            std::cout << "Username (leave blank to auto-detect): ";
+            std::string input;
+            std::cin >> input;
+            if (!input.empty()) {
+                params.username = input;
+            }
+        }
+        return doDeauth(params);
+    }
+
+    // auth: require both username and password
     if (!params.daemon) {
         if (params.username.empty()) {
             std::cout << "Username: ";
@@ -248,11 +264,5 @@ int main(int argc, char** argv) {
         setLogLevel(LogLevel::ERROR);
     }
 
-    std::string subcommand = parseSubcommand(argc, argv);
-
-    if (subcommand == "deauth") {
-        return doDeauth(params);
-    } else {
-        return doAuth(params);
-    }
+    return doAuth(params);
 }
