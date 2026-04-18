@@ -234,15 +234,7 @@ int main(int argc, char** argv) {
     std::string subcommand = parseSubcommand(argc, argv);
 
     if (subcommand == "deauth") {
-        // deauth: password not needed; username can be auto-detected via is_online
-        if (!params.daemon && params.username.empty()) {
-            std::cout << "Username (leave blank to auto-detect): ";
-            std::string input;
-            std::cin >> input;
-            if (!input.empty()) {
-                params.username = input;
-            }
-        }
+        // deauth: password not needed; username is auto-detected via is_online
         return doDeauth(params);
     }
 
