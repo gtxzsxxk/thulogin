@@ -272,11 +272,16 @@ int Authenticator::fetch_error_state(const std::string &data) {
     fetch_from_json(data, "error", error_state);
     if (error_state == "ok") {
         fetch_from_json(data, "suc_msg", response_msg);
-        if (response_msg == "login_ok") {
-            return 0;
+        return 0;
+    }
+    if (error_state == "login_error") {
+        std::string ecode;
+        fetch_from_json(data, "ecode", ecode);
+        if (!ecode.empty()) {
+            response_msg = ecode;
+        } else {
+            fetch_from_json(data, "error_msg", response_msg);
         }
-    } else if (error_state == "login_error") {
-        fetch_from_json(data, "error_msg", response_msg);
     } else {
         fetch_from_json(data, "res", response_msg);
     }
