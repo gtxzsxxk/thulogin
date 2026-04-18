@@ -241,7 +241,7 @@ int main(int argc, char** argv) {
     if (!params.daemon) {
         if (params.username.empty()) {
             std::cout << "Username: ";
-            std::cin >> params.username;
+            std::getline(std::cin, params.username);
         }
         if (params.password.empty()) {
             params.password = pwd_input("Password: ");
